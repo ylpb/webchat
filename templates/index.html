@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    {% load static %}
+    <script src="{% static 'jquery/jquery.min.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'bootstrap-3.3.7-dist/css/bootstrap.css' %}">
+    <script src="{% static 'bootstrap-3.3.7-dist/js/bootstrap.min.js' %}"></script>
+</head>
+<body>
+<h1>聊天室</h1>
+<div>
+    <input type="text" id="d1">
+    <button onclick="sendMsg()">发送</button>
+</div>
+<h1>聊天纪录</h1>
+<div id="record"></div>
+
+<script>
+    // 生产内置对象
+    var ws = new WebSocket('ws://127.0.0.1:8080/chat/');
+
+    // 1 握手环节成功之后自动触发  onopen
+    ws.onopen = function () {
+        console.log('链接成功')
+    };
+    // 2 发送数据       send
+    function sendMsg() {
+        ws.send($('#d1').val())
+    }
+
+    // 3 服务端发送数据自动触发   onmessage
+    ws.onmessage = function (args) {
+        // alert(args)  // args不是真正的数据对象 真正的数据在该对象的data属性中
+        {#alert(args.data)#}
+        // 将聊天纪录渲染到页面上
+        pEle = $('<p>');
+        pEle.text(args.data);
+        $('#record').append(pEle)
+    };
+    // 4 浏览器断开链接        close
+    ws.onclose = function () {
+        ws.close()
+    }
+</script>
+</body>
+</html>
